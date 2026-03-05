@@ -1,0 +1,54 @@
+# =============================================================================
+# terraform.tfvars.example
+# Copy this file to terraform.tfvars and fill in your values.
+# =============================================================================
+
+# ---- GLOBAL ------------------------------------------------------------------
+project_id  = "my-gcp-project-id"
+region      = "asia-south1"
+zone        = "asia-south1-a"
+environment = "dev"   # dev | staging | prod
+
+# ---- NETWORKING --------------------------------------------------------------
+vpc_name         = "main"
+app_subnet_cidr  = "10.10.0.0/24"
+data_subnet_cidr = "10.10.1.0/24"
+psa_cidr         = "10.20.0.0"
+psa_prefix_length = 16
+nat_router_name  = "nat-router"
+
+# ---- CLOUD SQL ---------------------------------------------------------------
+postgres_version           = "POSTGRES_15"
+postgres_tier              = "db-f1-micro"     # Use db-n1-standard-2 for production
+postgres_db_name           = "appdb"
+postgres_user              = "appuser"
+postgres_password          = "CHANGE_ME_STRONG_PASSWORD"   # Use Secret Manager in prod
+postgres_deletion_protection = false
+postgres_availability_type = "ZONAL"           # REGIONAL for HA
+postgres_disk_size_gb      = 20
+postgres_backup_enabled    = true
+
+# ---- BASTION VM --------------------------------------------------------------
+bastion_machine_type = "e2-micro"
+bastion_image        = "debian-cloud/debian-12"
+# bastion_startup_script = <<-EOF
+#   #!/bin/bash
+#   apt-get update -y && apt-get install -y postgresql-client
+# EOF
+
+# ---- API GATEWAY -------------------------------------------------------------
+api_id = "main-api"
+# api_openapi_spec = file("openapi.yaml")   # Uncomment to load from a file
+
+# ---- CLOUD STORAGE -----------------------------------------------------------
+# storage_bucket_name = ""              # Leave blank to auto-derive
+storage_location           = "ASIA"
+storage_class              = "STANDARD"
+storage_versioning_enabled = true
+storage_lifecycle_age_days = 90
+
+# ---- CLOUD LOGGING -----------------------------------------------------------
+log_sink_gcs_enabled = true
+log_sink_bq_enabled  = true
+log_filter           = ""    # Empty = export ALL logs; e.g. "severity>=WARNING"
+log_retention_days   = 30
