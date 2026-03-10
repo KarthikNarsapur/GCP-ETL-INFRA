@@ -245,3 +245,16 @@ variable "log_retention_days" {
   type        = number
   default     = 30
 }
+
+
+#==============================================================================
+# LOAD BALANCER + MIG
+#==============================================================================
+# LOAD BALANCER + MIG
+#==============================================================================
+# variable "project_id" {}
+# variable "region" {}
+variable "databricks_image" {
+  description = "Databricks marketplace image"
+  default = "projects/databricks-public/global/images/databricks"
+}

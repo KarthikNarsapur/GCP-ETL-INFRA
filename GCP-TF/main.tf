@@ -105,3 +105,31 @@ module "logging" {
   storage_bucket_name = module.storage.bucket_name
   labels              = local.common_labels
 }
+
+################################################################################
+# Load Balancer
+################################################################################
+
+module "loadbalancer" {
+  source = "./modules/loadbalancer"
+
+  project_id = var.project_id
+  region     = var.region
+
+  network    = module.networking.vpc_id
+  subnetwork = module.networking.app_subnet_self_link
+
+  template_name = "databricks-template"
+  mig_name      = "databricks-mig"
+
+  instance_count = 2
+  machine_type   = "e2-standard-4"
+
+  databricks_image = "projects/databricks-public/global/images/databricks"
+
+  health_check_name    = "tf-health-check"
+  backend_service_name = "tf-backend-service"
+  url_map_name         = "tf-url-map"
+  http_proxy_name      = "tf-http-proxy"
+  forwarding_rule_name = "tf-forwarding-rule"
+}
