@@ -32,7 +32,7 @@ variable "machine_type" {
 variable "image" {
   description = "Boot disk image (family/project format)."
   type        = string
-  default     = "debian-cloud/debian-12"
+  default     = "projects/debian-cloud/global/images/family/debian-12-arm64"
 }
 
 variable "startup_script" {

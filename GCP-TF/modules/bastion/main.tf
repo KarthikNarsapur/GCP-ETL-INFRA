@@ -30,7 +30,7 @@ resource "google_project_iam_member" "bastion_metrics_writer" {
 resource "google_compute_instance" "bastion" {
   project      = var.project_id
   name         = "${var.name_prefix}-bastion"
-  machine_type = var.machine_type
+  machine_type = "c4a-standard-1"
   # machine_type = "e2-standard-4"          # Use e2-standard-4 or higher for production
   # zone         = var.zone
   zone         = "asia-south1-a"
@@ -42,7 +42,7 @@ resource "google_compute_instance" "bastion" {
     initialize_params {
       image = var.image
       size  = 20
-      type  = "pd-standard"
+      type  = "hyperdisk-balanced"
     }
   }
 
