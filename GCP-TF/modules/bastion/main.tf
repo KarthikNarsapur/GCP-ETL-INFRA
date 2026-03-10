@@ -31,8 +31,9 @@ resource "google_compute_instance" "bastion" {
   project      = var.project_id
   name         = "${var.name_prefix}-bastion"
   machine_type = var.machine_type
-  zone         = var.zone
-
+  # machine_type = "e2-standard-4"          # Use e2-standard-4 or higher for production
+  # zone         = var.zone
+  zone         = "asia-south1-a"
   tags = ["bastion"] # Matches the IAP-SSH firewall target_tags
 
   labels = var.labels

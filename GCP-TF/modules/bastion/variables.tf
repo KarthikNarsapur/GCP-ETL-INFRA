@@ -26,7 +26,7 @@ variable "subnetwork" {
 variable "machine_type" {
   description = "Machine type for the bastion VM."
   type        = string
-  default     = "e2-medium"
+  default     = "c4a-standard-1"
 }
 
 variable "image" {

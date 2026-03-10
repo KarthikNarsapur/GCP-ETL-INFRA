@@ -46,12 +46,19 @@ resource "google_api_gateway_api_config" "config" {
   api_config_id = "${var.name_prefix}-${var.api_id}-config"
   labels        = var.labels
 
+  # openapi_documents {
+  #   document {
+  #     path     = "openapi.yaml"
+  #     contents = base64encode(var.openapi_spec)
+  #   }
+  # }
+
   openapi_documents {
-    document {
-      path     = "openapi.yaml"
-      contents = base64encode(var.openapi_spec)
-    }
+  document {
+    path     = "openapi.yaml"
+    contents = base64encode(file("${path.module}/openapi.yaml"))
   }
+}
 
   gateway_config {
     backend_config {
