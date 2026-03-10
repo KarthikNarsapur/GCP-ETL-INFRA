@@ -1,11 +1,16 @@
 # ─── Custom Log Bucket (with configurable retention) ──────────────────────────
-resource "google_logging_project_bucket_config" "app_log_bucket" {
-  project          = var.project_id
-  location         = var.region
-  retention_days   = var.log_retention_days
-  bucket_id        = "${var.name_prefix}-logs"
-  description      = "Custom log bucket for ${var.name_prefix} — ${var.log_retention_days}d retention"
-}
+# resource "google_logging_project_bucket_config" "app_log_bucket" {
+#   project        = var.project_id
+#   location       = var.region
+#   retention_days = var.log_retention_days
+#   bucket_id      = "${var.name_prefix}-logs"
+
+#   description = "Custom log bucket for ${var.name_prefix} — ${var.log_retention_days}d retention"
+
+#   lifecycle {
+#     prevent_destroy = true
+#   }
+# }
 
 # ─── Log Sink → Cloud Storage ─────────────────────────────────────────────────
 resource "google_logging_project_sink" "gcs_sink" {
@@ -25,13 +30,22 @@ resource "google_logging_project_sink" "gcs_sink" {
 }
 
 # Grant the sink's writer SA permission to write objects to the bucket
-resource "google_storage_bucket_iam_member" "gcs_sink_writer" {
+# resource "google_storage_bucket_iam_member" "gcs_sink_writer" {
+#   count = var.log_sink_gcs_enabled ? 1 : 0
+
+#   bucket = var.storage_bucket_name
+#   role   = "roles/storage.objectCreator"
+#   member = google_logging_project_sink.gcs_sink[0].writer_identity
+
+  resource "google_storage_bucket_iam_member" "gcs_sink_writer" {
+  depends_on = [google_logging_project_sink.gcs_sink]
   count = var.log_sink_gcs_enabled ? 1 : 0
 
   bucket = var.storage_bucket_name
   role   = "roles/storage.objectCreator"
   member = google_logging_project_sink.gcs_sink[0].writer_identity
 }
+# }
 
 # ─── Log Sink → BigQuery ──────────────────────────────────────────────────────
 resource "google_bigquery_dataset" "log_dataset" {

@@ -141,7 +141,7 @@ variable "bastion_machine_type" {
 variable "bastion_image" {
   description = "OS image for the bastion VM (family/project format)."
   type        = string
-  default     = "debian-cloud/debian-12"
+
 }
 
 variable "bastion_startup_script" {

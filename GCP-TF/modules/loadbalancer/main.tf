@@ -10,7 +10,20 @@ resource "google_compute_instance_template" "databricks_template" {
     disk_type    = "pd-balanced"
   }
 
+  lifecycle {
+  create_before_destroy = true
+}
 
+metadata = {
+  startup-script = <<-EOT
+#!/bin/bash
+apt-get update -y
+apt-get install -y nginx
+systemctl enable nginx
+systemctl start nginx
+EOT
+
+}
   network_interface {
     network    = var.network
     subnetwork = var.subnetwork
@@ -26,11 +39,23 @@ resource "google_compute_region_instance_group_manager" "mig" {
   region             = var.region
   base_instance_name = "databricks"
 
+  update_policy {
+  type           = "PROACTIVE"
+  minimal_action = "REPLACE"
+  max_surge_fixed       = 3
+  max_unavailable_fixed = 0
+}
+
   version {
     instance_template = google_compute_instance_template.databricks_template.id
   }
 
   target_size = var.instance_count
+
+    named_port {
+    name = "http"
+    port = 80
+  }
 }
 
 resource "google_compute_health_check" "health_check" {

@@ -77,6 +77,6 @@ resource "google_api_gateway_gateway" "gateway" {
   project    = var.project_id
   api_config = google_api_gateway_api_config.config.id
   gateway_id = "${var.name_prefix}-${var.api_id}-gw"
-  region     = var.region
+  region     = "us-central1"
   labels     = var.labels
 }

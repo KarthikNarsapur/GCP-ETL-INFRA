@@ -6,6 +6,7 @@ variable "project_id" {
 variable "region" {
   description = "GCP region for the API Gateway deployment."
   type        = string
+  default = "asia-southeast1"
 }
 
 variable "name_prefix" {

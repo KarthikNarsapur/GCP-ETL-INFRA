@@ -5,6 +5,7 @@ resource "google_storage_bucket" "bucket" {
   storage_class               = var.storage_class
   uniform_bucket_level_access = true   # Best practice: use IAM, not ACLs
   labels                      = var.labels
+  force_destroy = true
 
   versioning {
     enabled = var.versioning_enabled

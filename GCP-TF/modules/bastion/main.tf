@@ -69,3 +69,22 @@ resource "google_compute_instance" "bastion" {
     startup-script         = var.startup_script
   }
 }
+
+
+# resource "google_project_iam_member" "bastion_compute_viewer" {
+#   project = var.project_id
+#   role    = "roles/compute.viewer"
+#   member  = "serviceAccount:${google_service_account.bastion.email}"
+# }
+
+resource "google_project_iam_member" "bastion_oslogin" {
+  project = var.project_id
+  role    = "roles/compute.osLogin"
+  member  = "serviceAccount:${google_service_account.bastion.email}"
+}
+
+resource "google_project_iam_member" "bastion_instance_admin" {
+  project = var.project_id
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.bastion.email}"
+}

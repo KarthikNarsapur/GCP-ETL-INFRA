@@ -44,7 +44,11 @@ resource "google_service_networking_connection" "psa" {
   network                 = google_compute_network.vpc.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.psa_range.name]
+  #   depends_on = [
+  #   module.cloud_sql
+  # ]
 }
+
 
 # ─── CLOUD ROUTER + NAT ───────────────────────────────────────────────────────
 # Gives private VMs outbound internet access without a public IP.
@@ -127,4 +131,18 @@ resource "google_compute_firewall" "deny_all_ingress" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "allow_http" {
+  name    = "${var.vpc_name}-allow-http"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+
+  source_ranges = ["10.10.0.0/24", "10.10.1.0/24"]
+
+  target_tags = ["http-server"]
 }
