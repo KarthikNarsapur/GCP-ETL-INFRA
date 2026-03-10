@@ -256,5 +256,5 @@ variable "log_retention_days" {
 # variable "region" {}
 variable "databricks_image" {
   description = "Databricks marketplace image"
-  default = "projects/databricks-public/global/images/databricks"
+  default = "projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts"
 }

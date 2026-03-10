@@ -1,0 +1,20 @@
+swagger: "2.0"
+
+info:
+  title: "Main API"
+  description: "API Gateway placeholder spec"
+  version: "1.0.0"
+
+schemes:
+  - https
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      x-google-backend:
+        address: https://example.com
+      responses:
+        "200":
+          description: OK

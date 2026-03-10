@@ -123,9 +123,9 @@ module "loadbalancer" {
   mig_name      = "databricks-mig"
 
   instance_count = 2
-  machine_type   = "e2-standard-4"
+  machine_type   = "e2-micro"
 
-  databricks_image = "projects/databricks-public/global/images/databricks"
+  # databricks_image = "projects/databricks-public/global/images/databricks"
 
   health_check_name    = "tf-health-check"
   backend_service_name = "tf-backend-service"
