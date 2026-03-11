@@ -1,16 +1,16 @@
 # ─── Custom Log Bucket (with configurable retention) ──────────────────────────
-# resource "google_logging_project_bucket_config" "app_log_bucket" {
-#   project        = var.project_id
-#   location       = var.region
-#   retention_days = var.log_retention_days
-#   bucket_id      = "${var.name_prefix}-logs"
+resource "google_logging_project_bucket_config" "app_log_bucket" {
+  project        = var.project_id
+  location       = var.region
+  retention_days = var.log_retention_days
+  bucket_id      = "${var.name_prefix}-logs"
 
-#   description = "Custom log bucket for ${var.name_prefix} — ${var.log_retention_days}d retention"
+  description = "Custom log bucket for ${var.name_prefix} — ${var.log_retention_days}d retention"
 
-#   lifecycle {
-#     prevent_destroy = true
-#   }
-# }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
+}
 
 # ─── Log Sink → Cloud Storage ─────────────────────────────────────────────────
 resource "google_logging_project_sink" "gcs_sink" {
@@ -36,16 +36,20 @@ resource "google_logging_project_sink" "gcs_sink" {
 #   bucket = var.storage_bucket_name
 #   role   = "roles/storage.objectCreator"
 #   member = google_logging_project_sink.gcs_sink[0].writer_identity
+# }
 
-  resource "google_storage_bucket_iam_member" "gcs_sink_writer" {
-  depends_on = [google_logging_project_sink.gcs_sink]
+resource "google_storage_bucket_iam_member" "gcs_sink_writer" {
   count = var.log_sink_gcs_enabled ? 1 : 0
+
+  depends_on = [
+    google_logging_project_sink.gcs_sink
+  ]
 
   bucket = var.storage_bucket_name
   role   = "roles/storage.objectCreator"
   member = google_logging_project_sink.gcs_sink[0].writer_identity
 }
-# }
+
 
 # ─── Log Sink → BigQuery ──────────────────────────────────────────────────────
 resource "google_bigquery_dataset" "log_dataset" {
@@ -62,6 +66,9 @@ resource "google_bigquery_dataset" "log_dataset" {
 
 resource "google_logging_project_sink" "bq_sink" {
   count = var.log_sink_bq_enabled ? 1 : 0
+    depends_on = [
+    google_bigquery_dataset.log_dataset
+  ]
 
   project                = var.project_id
   name                   = "${var.name_prefix}-sink-bq"
@@ -77,6 +84,9 @@ resource "google_logging_project_sink" "bq_sink" {
 # Grant the sink's writer SA permission to write to BigQuery
 resource "google_bigquery_dataset_iam_member" "bq_sink_writer" {
   count = var.log_sink_bq_enabled ? 1 : 0
+    depends_on = [
+    google_logging_project_sink.bq_sink
+  ]
 
   project    = var.project_id
   dataset_id = google_bigquery_dataset.log_dataset[0].dataset_id

@@ -15,6 +15,10 @@ terraform {
       version = ">= 3.5"
     }
   }
+    backend "gcs" {
+    bucket  = "my-terraform-state-bucket-flipkart-dev"
+    prefix  = "gcp-tf/state"
+  }
 }
 
 provider "google" {

@@ -15,20 +15,14 @@ resource "google_compute_instance_template" "databricks_template" {
 }
 
 metadata = {
-  startup-script = <<-EOT
-#!/bin/bash
-apt-get update -y
-apt-get install -y nginx
-systemctl enable nginx
-systemctl start nginx
-EOT
-
+  startup-script = file("${path.module}/startup-script.sh")
 }
+
   network_interface {
     network    = var.network
     subnetwork = var.subnetwork
 
-    access_config {}
+    # access_config {}  
   }
 
   tags = ["http-server"]
@@ -94,4 +88,20 @@ resource "google_compute_global_forwarding_rule" "forwarding_rule" {
   name       = var.forwarding_rule_name
   port_range = "80"
   target     = google_compute_target_http_proxy.proxy.id
+}
+
+resource "google_compute_firewall" "allow_http_lb" {
+  name    = "allow-http-lb"
+  network = var.network
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+
+  source_ranges = [
+    "0.0.0.0/0"
+  ]
+
+  target_tags = ["http-server"]
 }
