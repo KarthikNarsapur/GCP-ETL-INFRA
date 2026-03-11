@@ -14,9 +14,13 @@ terraform {
       source  = "hashicorp/random"
       version = ">= 3.5"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.9"
+    }
   }
     backend "gcs" {
-    bucket  = "my-terraform-state-bucket-flipkart-dev"
+    bucket  = "my-terraform-state-bucket-flipkart-dev-01"
     prefix  = "gcp-tf/state"
   }
 }

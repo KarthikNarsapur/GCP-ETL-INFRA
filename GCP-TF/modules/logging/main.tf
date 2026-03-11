@@ -1,11 +1,20 @@
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
+
+
 # ─── Custom Log Bucket (with configurable retention) ──────────────────────────
 resource "google_logging_project_bucket_config" "app_log_bucket" {
   project        = var.project_id
   location       = var.region
   retention_days = var.log_retention_days
-  bucket_id      = "${var.name_prefix}-logs"
+  bucket_id = "${var.name_prefix}-logs-${random_id.bucket_suffix.hex}"
 
   description = "Custom log bucket for ${var.name_prefix} — ${var.log_retention_days}d retention"
+
+  lifecycle {
+  create_before_destroy = true
+}
 
   # lifecycle {
   #   prevent_destroy = true
