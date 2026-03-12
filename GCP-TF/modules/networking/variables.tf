@@ -43,3 +43,13 @@ variable "labels" {
   type        = map(string)
   default     = {}
 }
+
+variable "pods_cidr_range" {
+  description = "CIDR for the pods secondary range."
+  type        = string
+}
+
+variable "services_cidr_range" {
+  description = "CIDR for the services secondary range."
+  type        = string
+}

@@ -16,6 +16,16 @@ resource "google_compute_subnetwork" "app" {
   network                  = google_compute_network.vpc.self_link
   ip_cidr_range            = var.app_subnet_cidr
   private_ip_google_access = true # Allow VMs to reach Google APIs without NAT
+
+secondary_ip_range {
+  range_name    = "pods"
+  ip_cidr_range = "10.50.0.0/16"
+}
+
+secondary_ip_range {
+  range_name    = "services"
+  ip_cidr_range = "10.30.0.0/16"
+}
 }
 
 # Data subnet — Cloud SQL private IP lives in this allocation; bastion VM too
@@ -44,9 +54,9 @@ resource "google_service_networking_connection" "psa" {
   network                 = google_compute_network.vpc.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.psa_range.name]
-  depends_on = [
-    time_sleep.wait_for_sql_cleanup
-  ]
+  # depends_on = [
+  #   time_sleep.wait_for_sql_cleanup
+  # ]
 }
 
 

@@ -12,6 +12,8 @@ module "networking" {
   psa_cidr           = var.psa_cidr
   psa_prefix_length  = var.psa_prefix_length
   nat_router_name    = "${local.name_prefix}-${var.nat_router_name}"
+  pods_cidr_range = var.pods_cidr_range
+  services_cidr_range = var.services_cidr_range
   labels             = local.common_labels
 }
 
@@ -132,4 +134,20 @@ module "loadbalancer" {
   url_map_name         = "tf-url-map"
   http_proxy_name      = "tf-http-proxy"
   forwarding_rule_name = "tf-forwarding-rule"
+}
+
+################################################################################
+# GKE Cluster
+################################################################################
+module "gke" {
+  source = "./modules/gke"
+
+  project_id   = var.project_id
+  region       = var.region
+  cluster_name = var.cluster_name
+
+  network                  = module.networking.vpc_name
+  subnetwork               = module.networking.app_subnet_name
+  pods_secondary_range     = module.networking.pods_range_name
+  services_secondary_range = module.networking.services_range_name
 }

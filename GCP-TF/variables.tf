@@ -70,6 +70,15 @@ variable "nat_router_name" {
   default     = "nat-router"
 }
 
+variable "pods_cidr_range" {
+  default = "10.20.0.0/16"  
+}
+
+variable "services_cidr_range" {
+  default = "10.30.0.0/16"
+}
+
+
 # =============================================================================
 # CLOUD SQL (PostgreSQL)
 # =============================================================================
@@ -257,4 +266,22 @@ variable "log_retention_days" {
 variable "databricks_image" {
   description = "Databricks marketplace image"
   default = "projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts"
+}
+
+
+#==============================================================================
+# GKE CLUSTER
+#==============================================================================
+variable "cluster_name" {
+  description = "Name of the GKE cluster."
+  type        = string
+  default     = "my-gke-cluster"
+}
+
+
+variable "node_machine_type" {
+}
+
+variable "node_count" {
+  default = 1
 }

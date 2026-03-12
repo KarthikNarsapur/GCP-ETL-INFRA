@@ -27,3 +27,19 @@ output "psa_address_name" {
   description = "Name of the PSA reserved global address (passed to Cloud SQL module)."
   value       = google_compute_global_address.psa_range.name
 }
+
+
+
+
+output "app_subnet_name" {
+  value = google_compute_subnetwork.app.name
+}
+
+
+output "pods_range_name" {
+  value = "pods"
+}
+
+output "services_range_name" {
+  value = "services"
+}
