@@ -259,8 +259,6 @@ variable "log_retention_days" {
 #==============================================================================
 # LOAD BALANCER + MIG
 #==============================================================================
-# LOAD BALANCER + MIG
-#==============================================================================
 # variable "project_id" {}
 # variable "region" {}
 variable "databricks_image" {
@@ -277,11 +275,13 @@ variable "cluster_name" {
   type        = string
   default     = "my-gke-cluster"
 }
-
-
 variable "node_machine_type" {
 }
-
 variable "node_count" {
   default = 1
 }
+
+#==============================================================================
+# CLOUD FUNCTION + CLOUD BATCH
+#==============================================================================
+variable "project_name" {}

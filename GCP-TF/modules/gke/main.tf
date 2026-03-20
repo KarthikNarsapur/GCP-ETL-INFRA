@@ -14,26 +14,32 @@ resource "google_container_cluster" "gke" {
   initial_node_count       = 1
   node_config {
     disk_type    = "pd-standard"
-    disk_size_gb = 20
+    disk_size_gb = 30
   }
 
   ip_allocation_policy {
     cluster_secondary_range_name  = var.pods_secondary_range
     services_secondary_range_name = var.services_secondary_range
   }
+
+  private_cluster_config {
+  enable_private_nodes    = true
+  enable_private_endpoint = false
+  master_ipv4_cidr_block  = "172.16.0.0/28"
+}
 }
 
 resource "google_container_node_pool" "primary_nodes" {
   name       = "primary-node-pool"
   location   = var.region
   cluster    = google_container_cluster.gke.name
-  node_count = 1
+  node_count = 2
 
   node_config {
     machine_type = var.node_machine_type
 
     disk_type    = "pd-standard"
-    disk_size_gb = 20
+    disk_size_gb = 30
 
 
     oauth_scopes = [

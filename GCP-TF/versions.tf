@@ -18,6 +18,10 @@ terraform {
       source  = "hashicorp/time"
       version = "~> 0.9"
     }
+        archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.4"
+    }
   }
     backend "gcs" {
     bucket  = "my-terraform-state-bucket-flipkart-dev-01"

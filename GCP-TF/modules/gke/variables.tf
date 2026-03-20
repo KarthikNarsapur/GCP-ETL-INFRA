@@ -8,7 +8,7 @@ variable "network" {}
 variable "subnetwork" {}
 
 variable "node_machine_type" {
-  default = "e2-micro"
+  default = "e2-standard-4"
 }
 
 variable "pods_secondary_range" {}

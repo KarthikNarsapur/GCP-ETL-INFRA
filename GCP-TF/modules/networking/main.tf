@@ -38,6 +38,20 @@ resource "google_compute_subnetwork" "data" {
   private_ip_google_access = true
 }
 
+# ─── PROXY ONLY SUBNET (Required for Internal HTTP(S) Load Balancer) ───────────
+
+resource "google_compute_subnetwork" "proxy_only" {
+  project = var.project_id
+  name    = "${var.vpc_name}-proxy-only"
+  region  = var.region
+  network = google_compute_network.vpc.self_link
+
+  ip_cidr_range = "10.129.0.0/23"
+
+  purpose = "REGIONAL_MANAGED_PROXY"
+  role    = "ACTIVE"
+}
+
 # ─── PRIVATE SERVICE ACCESS (needed for Cloud SQL private IP) ─────────────────
 
 resource "google_compute_global_address" "psa_range" {
@@ -125,6 +139,21 @@ resource "google_compute_firewall" "allow_internal" {
   }
 
   source_ranges = [var.app_subnet_cidr, var.data_subnet_cidr]
+}
+
+# Allow health checks from GCP load balancers (required for Internal HTTP(S) Load Balancer)
+resource "google_compute_firewall" "allow_lb_health_checks" {
+  name    = "${var.vpc_name}-allow-lb-health-checks"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+  }
+
+  source_ranges = [
+    "130.211.0.0/22",
+    "35.191.0.0/16"
+  ]
 }
 
 # Deny all other inbound traffic (explicit — lower priority)

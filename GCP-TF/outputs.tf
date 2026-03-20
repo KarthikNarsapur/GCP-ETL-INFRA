@@ -101,3 +101,13 @@ output "log_sink_bq_name" {
   description = "Name of the Cloud Logging sink sending logs to BigQuery (empty if disabled)."
   value       = module.logging.bq_sink_name
 }
+
+
+
+output "batch_job_pubsub_topic" {
+  value = module.batch_job.pubsub_topic
+}
+
+output "batch_job_function_url" {
+  value = module.batch_job.function_url
+}
