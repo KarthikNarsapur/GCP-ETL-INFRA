@@ -100,14 +100,14 @@ def submit_job(message_body, message_id):
 
     job = batch_v1.Job()
 
-    # ✅ Container config
+    # Container config
     runnable = batch_v1.Runnable()
     runnable.container.image_uri = CONFIG['IMAGE_URI']
 
-    # ✅ IMPORTANT: add command so busybox doesn't exit instantly
+    # IMPORTANT: add command so busybox doesn't exit instantly
     runnable.container.commands = ["sh", "-c", "echo Hello from Batch && sleep 10"]
 
-    # ✅ Env vars
+    # Env vars
     runnable.environment.variables = {e["name"]: e["value"] for e in env_vars}
 
     # Task
@@ -124,7 +124,6 @@ def submit_job(message_body, message_id):
 
     job.task_groups = [group]
 
-    # ✅🔥 CRITICAL FIX: set service account
     job.allocation_policy = batch_v1.AllocationPolicy(
         service_account=batch_v1.ServiceAccount(
             email="batch-function-sa@ginthi-entrans.iam.gserviceaccount.com"

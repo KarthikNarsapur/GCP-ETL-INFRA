@@ -1,4 +1,3 @@
-
 # DATA
 
 data "google_project" "project" {}
@@ -11,8 +10,6 @@ resource "google_service_account_iam_member" "allow_batch_sa" {
 }
 
 # ENABLE APIs
-
-
 resource "google_project_service" "services" {
   for_each = toset([
     "cloudfunctions.googleapis.com",
@@ -28,8 +25,6 @@ resource "google_project_service" "services" {
 
 
 # PUBSUB
-
-
 resource "google_pubsub_topic" "topic" {
   name   = var.pubsub_topic
   labels = var.labels
@@ -44,8 +39,6 @@ resource "google_pubsub_subscription" "sub" {
 
 
 # SERVICE ACCOUNTS
-
-
 resource "google_service_account" "function_sa" {
   account_id   = "batch-function-sa"
   display_name = "Batch Function SA"
@@ -58,8 +51,6 @@ resource "google_service_account" "scheduler_sa" {
 
 
 # IAM - FUNCTION PERMISSIONS
-
-
 resource "google_project_iam_member" "batch_admin" {
   project = var.project_id
   role    = "roles/batch.jobsEditor"
@@ -80,8 +71,6 @@ resource "google_project_iam_member" "logs_writer" {
 
 
 # ALLOW FUNCTION TO ACT AS COMPUTE SA
-
-
 resource "google_service_account_iam_member" "allow_act_as_compute_sa" {
   service_account_id = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 
@@ -91,18 +80,13 @@ resource "google_service_account_iam_member" "allow_act_as_compute_sa" {
 
 
 # ZIP FUNCTION CODE
-
-
 data "archive_file" "function_zip" {
   type        = "zip"
   source_dir  = "${path.module}/function"
   output_path = "${path.module}/function.zip"
 }
 
-
 # STORAGE
-
-
 resource "google_storage_bucket" "bucket" {
   name          = "${var.project_id}-functions-bucket"
   location      = var.region
@@ -121,8 +105,6 @@ resource "google_storage_bucket_object" "archive" {
 
 
 # CLOUD FUNCTION (GEN2)
-
-
 resource "google_cloudfunctions2_function" "function" {
   name     = var.function_name
   location = var.region
@@ -161,8 +143,6 @@ resource "google_cloudfunctions2_function" "function" {
 
 
 # CLOUD RUN IAM (SECURE INVOKE)
-
-
 resource "google_cloud_run_service_iam_member" "invoker" {
   project  = var.project_id
   location = var.region
@@ -175,8 +155,6 @@ resource "google_cloud_run_service_iam_member" "invoker" {
 
 
 # CLOUD SCHEDULER (AUTHENTICATED)
-
-
 resource "google_cloud_scheduler_job" "job" {
   name     = var.scheduler_name
   schedule = "* * * * *"
