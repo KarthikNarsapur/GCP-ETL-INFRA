@@ -13,7 +13,7 @@ output "gateway_url" {
   value       = "https://${google_api_gateway_gateway.gateway.default_hostname}"
 }
 
-output "service_account_email" {
-  description = "Service account attached to the API Gateway backend."
-  value       = google_service_account.api_gateway.email
-}
+# output "service_account_email" {
+#   description = "Service account attached to the API Gateway backend."
+#   value       = google_service_account.api_gateway.email
+# }

@@ -1,7 +1,7 @@
-# output "log_bucket_id" {
-#   description = "ID of the custom Cloud Logging log bucket."
-#   value       = google_logging_project_bucket_config.app_log_bucket.id
-# }
+output "log_bucket_id" {
+  description = "ID of the custom Cloud Logging log bucket."
+  value       = google_logging_project_bucket_config.app_log_bucket.id
+}
 
 output "gcs_sink_name" {
   description = "Name of the GCS log sink (empty string if disabled)."

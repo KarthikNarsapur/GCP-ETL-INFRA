@@ -28,9 +28,6 @@ output "psa_address_name" {
   value       = google_compute_global_address.psa_range.name
 }
 
-
-
-
 output "app_subnet_name" {
   value = google_compute_subnetwork.app.name
 }

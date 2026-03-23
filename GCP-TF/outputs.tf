@@ -1,4 +1,13 @@
 # =============================================================================
+# Cloud Function
+#=============================================================================
+
+# output "cloud_function_url" {
+#   description = "URL of the deployed Cloud Function."
+#   value       = module.cloud_function.function_url
+# }
+
+# =============================================================================
 # NETWORKING
 # =============================================================================
 
@@ -41,6 +50,19 @@ output "postgres_connection_name" {
   value       = module.cloud_sql.connection_name
 }
 
+
+# =============================================================================
+# Load Balancer + MIG
+# =============================================================================
+
+output "loadbalancer_IP" {
+  value = module.loadbalancer.load_balancer_ip  
+}
+
+output "mig_name" {
+  value = module.loadbalancer.mig_name
+}
+
 # =============================================================================
 # BASTION VM
 # =============================================================================
@@ -74,6 +96,11 @@ output "api_gateway_id" {
   value       = module.api_gateway.gateway_id
 }
 
+output "api_resource_id" {
+  description = "API resource ID used in API Gateway configuration."
+  value       = module.api_gateway.api_id
+}
+
 # =============================================================================
 # CLOUD STORAGE
 # =============================================================================
@@ -103,11 +130,31 @@ output "log_sink_bq_name" {
 }
 
 
-
+# =============================================================================
+# Batch Job + Cloud Function
+# =============================================================================
 output "batch_job_pubsub_topic" {
   value = module.batch_job.pubsub_topic
 }
 
 output "batch_job_function_url" {
   value = module.batch_job.function_url
+}
+
+output "batch_job_pubsub_subscription" {
+  value = module.batch_job.pubsub_subscription
+}
+
+# =============================================================================
+# GKE
+# =============================================================================
+
+output "gke_cluster_name" {
+  description = "Name of the GKE cluster."
+  value       = module.gke.cluster_name
+}
+
+output "gke_cluster_endpoint" {
+  description = "Endpoint of the GKE cluster."
+  value       = module.gke.cluster_endpoint
 }
