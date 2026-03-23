@@ -1,5 +1,17 @@
 
-# Enable Required APIs
+# DATA
+
+data "google_project" "project" {}
+
+resource "google_service_account_iam_member" "allow_batch_sa" {
+  service_account_id = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+
+  role   = "roles/iam.serviceAccountUser"
+  member = "serviceAccount:${google_service_account.function_sa.email}"
+}
+
+# ENABLE APIs
+
 
 resource "google_project_service" "services" {
   for_each = toset([
@@ -15,7 +27,8 @@ resource "google_project_service" "services" {
 }
 
 
-# Pub/Sub
+# PUBSUB
+
 
 resource "google_pubsub_topic" "topic" {
   name   = var.pubsub_topic
@@ -30,7 +43,8 @@ resource "google_pubsub_subscription" "sub" {
 }
 
 
-# Service Accounts
+# SERVICE ACCOUNTS
+
 
 resource "google_service_account" "function_sa" {
   account_id   = "batch-function-sa"
@@ -43,7 +57,8 @@ resource "google_service_account" "scheduler_sa" {
 }
 
 
-# IAM Roles (Function Permissions)
+# IAM - FUNCTION PERMISSIONS
+
 
 resource "google_project_iam_member" "batch_admin" {
   project = var.project_id
@@ -64,7 +79,19 @@ resource "google_project_iam_member" "logs_writer" {
 }
 
 
-# Zip Function Code
+# ALLOW FUNCTION TO ACT AS COMPUTE SA
+
+
+resource "google_service_account_iam_member" "allow_act_as_compute_sa" {
+  service_account_id = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+
+  role   = "roles/iam.serviceAccountUser"
+  member = "serviceAccount:${google_service_account.function_sa.email}"
+}
+
+
+# ZIP FUNCTION CODE
+
 
 data "archive_file" "function_zip" {
   type        = "zip"
@@ -73,7 +100,8 @@ data "archive_file" "function_zip" {
 }
 
 
-# Storage Bucket
+# STORAGE
+
 
 resource "google_storage_bucket" "bucket" {
   name          = "${var.project_id}-functions-bucket"
@@ -84,14 +112,16 @@ resource "google_storage_bucket" "bucket" {
   public_access_prevention    = "enforced"
 }
 
+# Force redeploy every time
 resource "google_storage_bucket_object" "archive" {
-  name   = "function.zip"
+  name   = "function-${timestamp()}.zip"
   bucket = google_storage_bucket.bucket.name
   source = data.archive_file.function_zip.output_path
 }
 
 
-# Cloud Function (Gen2)
+# CLOUD FUNCTION (GEN2)
+
 
 resource "google_cloudfunctions2_function" "function" {
   name     = var.function_name
@@ -121,12 +151,17 @@ resource "google_cloudfunctions2_function" "function" {
   }
 
   depends_on = [
-    google_project_service.services
+    google_project_service.services,
+    google_project_iam_member.batch_admin,
+    google_project_iam_member.pubsub_subscriber,
+    google_project_iam_member.logs_writer,
+    google_service_account_iam_member.allow_act_as_compute_sa
   ]
 }
 
 
-# Cloud Run IAM (SECURE - NO allUsers)
+# CLOUD RUN IAM (SECURE INVOKE)
+
 
 resource "google_cloud_run_service_iam_member" "invoker" {
   project  = var.project_id
@@ -139,23 +174,26 @@ resource "google_cloud_run_service_iam_member" "invoker" {
 }
 
 
-# Cloud Scheduler (Authenticated)
+# CLOUD SCHEDULER (AUTHENTICATED)
+
+
 resource "google_cloud_scheduler_job" "job" {
   name     = var.scheduler_name
-  schedule = "*/5 * * * *"
+  schedule = "* * * * *"
   region   = var.region
 
   http_target {
     uri         = google_cloudfunctions2_function.function.service_config[0].uri
     http_method = "GET"
 
-oidc_token {
-  service_account_email = google_service_account.scheduler_sa.email
-  audience              = google_cloudfunctions2_function.function.service_config[0].uri
-}
+    oidc_token {
+      service_account_email = google_service_account.scheduler_sa.email
+      audience              = google_cloudfunctions2_function.function.service_config[0].uri
+    }
   }
 
   depends_on = [
-    google_cloud_run_service_iam_member.invoker
+    google_cloud_run_service_iam_member.invoker,
+    google_cloudfunctions2_function.function
   ]
 }

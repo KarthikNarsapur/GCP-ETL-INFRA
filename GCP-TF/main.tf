@@ -152,51 +152,51 @@ module "gke" {
   services_secondary_range = module.networking.services_range_name
 }
 
-################################################################################
-# Cloud Function (Gen2)
-################################################################################
-module "cloudfunction" {
-  source = "./modules/cloudfunction"
+# ################################################################################
+# # Cloud Function (Gen2)
+# ################################################################################
+# module "cloudfunction" {
+#   source = "./modules/cloudfunction"
 
-  #   providers = {
-  #   google      = google
-  #   google-beta = google-beta
-  # }
+#   #   providers = {
+#   #   google      = google
+#   #   google-beta = google-beta
+#   # }
 
-  project_id  = var.project_id
-  region      = var.region
-  # name_prefix = local.name_prefix
-  # project_name = var.project_name
-  # environment = var.environment
-  # Storage (for function source)
-  # bucket_name = module.storage.bucket_name
+#   project_id  = var.project_id
+#   region      = var.region
+#   # name_prefix = local.name_prefix
+#   # project_name = var.project_name
+#   # environment = var.environment
+#   # Storage (for function source)
+#   # bucket_name = module.storage.bucket_name
 
-  # Networking (for VPC access)
-  # vpc_name        = module.networking.vpc_name
-  # subnet_self_link = module.networking.app_subnet_self_link
+#   # Networking (for VPC access)
+#   # vpc_name        = module.networking.vpc_name
+#   # subnet_self_link = module.networking.app_subnet_self_link
 
-  # Optional DB connection
-  # db_host     = module.cloud_sql.private_ip_address
-  # db_name     = var.postgres_db_name
-  # db_user     = var.postgres_user
-  # db_password = var.postgres_password
+#   # Optional DB connection
+#   # db_host     = module.cloud_sql.private_ip_address
+#   # db_name     = var.postgres_db_name
+#   # db_user     = var.postgres_user
+#   # db_password = var.postgres_password
 
-  # Function config
-  # function_name = "cloud-function"
-  # runtime       = "python311"
-  # entry_point   = "main"
+#   # Function config
+#   # function_name = "cloud-function"
+#   # runtime       = "python311"
+#   # entry_point   = "main"
 
-  # Trigger type: "http" or "pubsub"
-  # trigger_type = "http"
+#   # Trigger type: "http" or "pubsub"
+#   # trigger_type = "http"
 
-  # labels = local.common_labels
+#   # labels = local.common_labels
 
-  # depends_on = [
-  #   module.networking,
-  #   module.storage,
-  #   module.cloud_sql
-  # ]
-}
+#   # depends_on = [
+#   #   module.networking,
+#   #   module.storage,
+#   #   module.cloud_sql
+#   # ]
+# }
 
 ################################################################################
 # Batch Job (Cloud Run Job)
