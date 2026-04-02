@@ -40,12 +40,12 @@ resource "google_pubsub_subscription" "sub" {
 
 # SERVICE ACCOUNTS
 resource "google_service_account" "function_sa" {
-  account_id   = "batch-function-sa"
+  account_id = "${var.function_name}-sa"
   display_name = "Batch Function SA"
 }
 
 resource "google_service_account" "scheduler_sa" {
-  account_id   = "scheduler-invoker-sa"
+  account_id   = "${var.function_name}-scheduler-sa"
   display_name = "Scheduler Invoker SA"
 }
 
@@ -55,6 +55,12 @@ resource "google_project_iam_member" "batch_admin" {
   project = var.project_id
   role    = "roles/batch.jobsEditor"
   member  = "serviceAccount:${google_service_account.function_sa.email}"
+}
+
+resource "google_project_iam_member" "batch_agent_reporter" {
+  project = var.project_id
+  role    = "roles/batch.agentReporter"
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "pubsub_subscriber" {
@@ -82,13 +88,13 @@ resource "google_service_account_iam_member" "allow_act_as_compute_sa" {
 # ZIP FUNCTION CODE
 data "archive_file" "function_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/function"
-  output_path = "${path.module}/function.zip"
+  source_dir  = "${path.module}/functions"
+  output_path = "${path.module}/functions.zip"
 }
 
 # STORAGE
 resource "google_storage_bucket" "bucket" {
-  name          = "${var.project_id}-functions-bucket"
+  name = "${var.project_id}-${var.function_name}-bucket"
   location      = var.region
   force_destroy = true
 
@@ -132,13 +138,14 @@ resource "google_cloudfunctions2_function" "function" {
     service_account_email = google_service_account.function_sa.email
   }
 
-  depends_on = [
-    google_project_service.services,
-    google_project_iam_member.batch_admin,
-    google_project_iam_member.pubsub_subscriber,
-    google_project_iam_member.logs_writer,
-    google_service_account_iam_member.allow_act_as_compute_sa
-  ]
+depends_on = [
+  google_project_service.services,
+  google_project_iam_member.batch_admin,
+  google_project_iam_member.batch_agent_reporter,
+  google_project_iam_member.pubsub_subscriber,
+  google_project_iam_member.logs_writer,
+  google_service_account_iam_member.allow_act_as_compute_sa
+]
 }
 
 
@@ -153,6 +160,12 @@ resource "google_cloud_run_service_iam_member" "invoker" {
   member = "serviceAccount:${google_service_account.scheduler_sa.email}"
 }
 
+
+resource "google_project_iam_member" "batch_editor" {
+  project = var.project_id
+  role    = "roles/batch.jobsEditor"
+  member  = "serviceAccount:${google_service_account.function_sa.email}"
+}
 
 # CLOUD SCHEDULER (AUTHENTICATED)
 resource "google_cloud_scheduler_job" "job" {
@@ -173,5 +186,34 @@ resource "google_cloud_scheduler_job" "job" {
   depends_on = [
     google_cloud_run_service_iam_member.invoker,
     google_cloudfunctions2_function.function
+  ]
+}
+
+resource "google_compute_firewall" "allow_batch_https_egress" {
+  name    = "allow-${var.function_name}-egress"
+  network = var.vpc_name
+
+  direction = "EGRESS"
+  priority  = 1000
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["53"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["53"]
+  }
+
+  destination_ranges = ["0.0.0.0/0"]
+
+  target_service_accounts = [
+    "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
   ]
 }

@@ -203,7 +203,7 @@ module "gke" {
 ################################################################################
 module "batch_job" {
   source = "./modules/batch_job"
-
+  vpc_name = module.networking.vpc_name
   project_id  = var.project_id
   region      = var.region
 

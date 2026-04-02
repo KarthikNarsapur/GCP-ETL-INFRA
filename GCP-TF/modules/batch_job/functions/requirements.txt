@@ -1,0 +1,7 @@
+boto3
+httpx
+requests
+google-cloud-batch
+google-cloud-pubsub
+strands-agents
+strands-agents-tools
